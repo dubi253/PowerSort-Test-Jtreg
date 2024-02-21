@@ -1,4 +1,5 @@
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -34,13 +35,6 @@ public class Util {
         final int offset = a[0] == Integer.MIN_VALUE ? 1 : 0;
         for (int i = 0; i + offset < a.length; i++) {
             if (a[i + offset] != i + 1) return false;
-        }
-        return true;
-    }
-
-    public static boolean isSorted(int[] a) {
-        for (int i = 0; i < a.length - 1; i++) {
-            if (a[i + 1] < a[i]) return false;
         }
         return true;
     }

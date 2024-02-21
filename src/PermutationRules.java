@@ -1,11 +1,8 @@
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.Comparator;
 
 public enum PermutationRules {
     RANDOM_INTEGER("Random_Integer") {
-
         @SuppressWarnings("unchecked")
         public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
             Random rnd = new Random(randomSeed);
@@ -26,7 +23,7 @@ public enum PermutationRules {
         }
     },
 
-    ASCENDING_INTEGER("Ascending_Integer"){
+    ASCENDING_INTEGER("Ascending_Integer") {
         @SuppressWarnings("unchecked")
         public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
             Integer[] result = new Integer[len];
@@ -129,26 +126,10 @@ public enum PermutationRules {
                 RTimCache = timsortDragRunlengths(n);
             }
             LinkedList<Integer> RTim = RTimCache;
-            fillWithUpAndDownRunsInteger(result, RTim, minRunLen, rnd);
+            fillWithUpAndDownRuns(result, RTim, minRunLen, rnd);
             return result;
         }
 
-        public static <T> void fillWithUpAndDownRunsInteger(final Integer[] A, final List<Integer> runLengths,
-                                                            final int runLenFactor, final Random random) {
-            int n = A.length;
-            assert total(runLengths) * runLenFactor == n;
-            for (int i = 0; i < n; ++i) A[i] = i + 1;
-            shuffle(A, 0, n - 1, random);
-            boolean reverse = false;
-            int i = 0;
-            for (int l : runLengths) {
-                int L = l * runLenFactor;
-                Arrays.sort(A, Math.max(0, i - 1), i + L);
-                if (reverse) reverseRange(A, Math.max(0, i - 1), i + L - 1);
-                reverse = !reverse;
-                i += L;
-            }
-        }
     };
 
     protected int len;
@@ -159,7 +140,8 @@ public enum PermutationRules {
 
     private final String name;
 
-    PermutationRules(String name){
+
+    PermutationRules(String name) {
         this.name = name;
     }
 
@@ -172,8 +154,41 @@ public enum PermutationRules {
 
     protected abstract <T> T[] buildImpl(int len, long randomSeed, int expRunLen);
 
-    public String toString(){
-        return name + "-Len:" + len + "-Seed:" + String.format("0x%X",randomSeed) + "-ExpRunLen:" + expRunLen;
+    public String toString() {
+        return name + "-Len:" + len + "-Seed:" + String.format("0x%X", randomSeed) + "-ExpRunLen:" + expRunLen;
+    }
+
+    /**
+     * Returns a comparator that compares two objects according to their natural order.
+     *
+     * @param <T> the type of the objects to be compared
+     * @return a comparator that compares two objects according to their natural order.
+     */
+    public <T> Comparator<? super T> getComparator() {
+        return NaturalOrder.INSTANCE;
+    }
+
+    /**
+     * A comparator that implements the natural ordering of a group of
+     * mutually comparable elements. May be used when a supplied
+     * comparator is null. To simplify code-sharing within underlying
+     * implementations, the compare method only declares type Object
+     * for its second argument.
+     *
+     * Arrays class implementor's note: It is an empirical matter
+     * whether ComparableTimSort offers any performance benefit over
+     * TimSort used with this comparator.  If not, you are better off
+     * deleting or bypassing ComparableTimSort.  There is currently no
+     * empirical case for separating them for parallel sorting, so all
+     * public Object parallelSort methods use the same comparator
+     * based implementation.
+     */
+    static final class NaturalOrder implements Comparator<Object> {
+        @SuppressWarnings("unchecked")
+        public int compare(Object first, Object second) {
+            return ((Comparable<Object>)first).compareTo(second);
+        }
+        static final NaturalOrder INSTANCE = new NaturalOrder();
     }
 
 
@@ -226,6 +241,26 @@ public enum PermutationRules {
             T t = a[lo];
             a[lo++] = a[hi];
             a[hi--] = t;
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <T> void fillWithUpAndDownRuns(final T[] A, final List<Integer> runLengths,
+                                                 final int runLenFactor, final Random random) {
+        int n = A.length;
+        assert total(runLengths) * runLenFactor == n;
+        // make i same type as A
+        for (int i = 0; i < n; ++i) A[i] = (T) Integer.valueOf(i + 1);
+        shuffle(A, 0, n - 1, random);
+        boolean reverse = false;
+        int i = 0;
+        for (int l : runLengths) {
+            int L = l * runLenFactor;
+            Arrays.sort(A, Math.max(0, i - 1), i + L);
+            if (reverse) reverseRange(A, Math.max(0, i - 1), i + L - 1);
+            reverse = !reverse;
+            i += L;
         }
     }
 
