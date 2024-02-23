@@ -1,24 +1,49 @@
-import java.util.*;
+import java.util.Comparator;
 
+/**
+ * The interface Sorter.
+ */
 public interface Sorter {
     /**
-     * Sorts A[left..right] (both endpoints inclusive)
+     * Sorts A[left..right]
+     *
+     * @param <T>   the type parameter
+     * @param A     the array to be sorted
+     * @param left  the left inclusive
+     * @param right the right exclusive
+     * @param comp  the comp
      */
     <T> void sort(T[] A, int left, int right, Comparator<? super T> comp);
 
-    void zeroMergeCost();
-
+    /**
+     * Gets merge cost.
+     *
+     * @return the merge cost
+     */
     long getMergeCost();
 
     @Override
     String toString();
 
+    /**
+     * Sort.
+     *
+     * @param <T>  the type parameter
+     * @param A    the a
+     * @param comp the comp
+     */
     default <T> void sort(T[] A, Comparator<? super T> comp) {
-        sort(A, 0, A.length - 1, comp);
+        sort(A, 0, A.length, comp);
     }
 
+    /**
+     * Sort.
+     *
+     * @param <T> the type parameter
+     * @param A   the a
+     */
     default <T> void sort(T[] A) {
-        sort(A, 0, A.length - 1, null);
+        sort(A, 0, A.length, null);
     }
 
 
@@ -43,6 +68,9 @@ public interface Sorter {
             return ((Comparable<Object>) first).compareTo(second);
         }
 
+        /**
+         * The Instance.
+         */
         static final NaturalOrder INSTANCE = new NaturalOrder();
     }
 }

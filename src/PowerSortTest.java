@@ -25,7 +25,7 @@ public class PowerSortTest {
 
         List<Sorter> algos = new ArrayList<>();
 
-        algos.add(new TimSort());
+//        algos.add(new TimSort());
         algos.add(new PowerSort(true, false, 24));
 
 
@@ -73,6 +73,7 @@ public class PowerSortTest {
         timeSorts(algos, reps, testInputs.generate());
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> void timeSorts(final List<Sorter> algos, final int repetition, final LinkedList<TestInput<?>> testInputs) throws IOException {
         warmup(algos, 1000);  // warmup the JVM to avoid timing noise, 12_000 rounds for each algorithm
 
@@ -89,9 +90,8 @@ public class PowerSortTest {
             for (final TestInput<?> testInput : testInputs) {
                 final WelfordVariance samples = new WelfordVariance();
                 for (int r = 0; r < repetition; ++r) {
-                    algo.zeroMergeCost();
                     final long startNanos = System.nanoTime();
-                    algo.sort(testInput.getInput());
+                    algo.sort(testInput.getInput(), (Comparator<? super Object>) testInput.getComparator());
                     final long endNanos = System.nanoTime();
                     if (ABORT_IF_RESULT_IS_NOT_SORTED && !testInput.isSorted()) {
                         System.err.println("RESULT NOT SORTED!");
@@ -143,9 +143,8 @@ public class PowerSortTest {
         Random random = new java.util.Random();
         for (int i = 0; i < gold.length; i++)
             gold[i] = random.nextInt();
-
-        for (int i = 0; i < warmupRounds; i++) {
-            for (Sorter algo : algos) {
+        for (Sorter algo : algos) {
+            for (int i = 0; i < warmupRounds; i++) {
                 Integer[] test = gold.clone();
                 algo.sort(test);
             }

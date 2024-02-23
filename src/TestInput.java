@@ -29,7 +29,11 @@ public class TestInput<T> {
 
     public boolean isSorted() {
         for (int i = 0; i < testInput.length - 1; i++) {
-            if (comp.compare(testInput[i + 1], testInput[i]) < 0) return false;
+            if (comp.compare(testInput[i + 1], testInput[i]) < 0) {
+                System.out.println(this);
+                System.out.println("Unsorted: " + testInput[i] + " " + testInput[i + 1] + " at " + i);
+                return false;
+            }
         }
         return true;
     }
