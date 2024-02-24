@@ -25,7 +25,7 @@ public class PowerSortTest {
 
         List<Sorter> algos = new ArrayList<>();
 
-//        algos.add(new TimSort());
+        algos.add(new TimSort());
         algos.add(new PowerSort(true, false, 24));
 
 
@@ -69,12 +69,13 @@ public class PowerSortTest {
         for (int n : testInputLengths) testName.append("-").append(n);
         testName.append("-Repetition:").append(reps);
 
-        TestInputsGenerator<?> testInputs = new TestInputsGenerator<>(randomSeeds, testInputLengths, expectedRunLengths);
-        timeSorts(algos, reps, testInputs.generate());
+        TestInputs testInputs = new TestInputs(randomSeeds, testInputLengths, expectedRunLengths);
+
+        timeSorts(algos, reps, testInputs);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> void timeSorts(final List<Sorter> algos, final int repetition, final LinkedList<TestInput<?>> testInputs) throws IOException {
+    public static <T> void timeSorts(final List<Sorter> algos, final int repetition, TestInputs testInputs) {
         warmup(algos, 1000);  // warmup the JVM to avoid timing noise, 12_000 rounds for each algorithm
 
 
@@ -87,17 +88,20 @@ public class PowerSortTest {
         }
 
         for (final Sorter algo : algos) {
-            for (final TestInput<?> testInput : testInputs) {
+            for (RuleApplication<?> testInput : testInputs.getRules()) {
                 final WelfordVariance samples = new WelfordVariance();
                 for (int r = 0; r < repetition; ++r) {
+                    if (COUNT_MERGE_COSTS) algo.resetMergeCost();
+                    T[] a = (T[]) testInput.generate();
+                    Comparator<? super T> comp = (Comparator<? super T>) testInput.getComparator();
                     final long startNanos = System.nanoTime();
-                    algo.sort(testInput.getInput(), (Comparator<? super Object>) testInput.getComparator());
+                    algo.sort(a, comp);
                     final long endNanos = System.nanoTime();
                     if (ABORT_IF_RESULT_IS_NOT_SORTED && !testInput.isSorted()) {
                         System.err.println("RESULT NOT SORTED!");
                         System.exit(3);
                     }
-                    final double msDiff = (endNanos - startNanos) / 1e6;
+                    final double msDiff = (endNanos - startNanos) / 1e6;  // 1e6 is 10^6, so it's converting nanoseconds to milliseconds
                     if (r != 0) {
                         // Skip first iteration, often slower!
                         samples.addSample(msDiff);
@@ -107,7 +111,9 @@ public class PowerSortTest {
                             System.out.println(algo + "," + testInput + "," + msDiff + "," + r);
                     }
                 }
-                System.out.println("avg-ms=" + (float) (samples.mean()) + ",\t algo=" + algo + ", testInputLength=" + testInput.getInput().length + ", repetition:" + repetition + "\t" + samples);
+                System.out.println("avg-ms=" + (float) (samples.mean()) + ",\t algo=" + algo + ", testInputLength=" + testInput.getInputLength() + ", repetition:" + repetition + "\t" + samples);
+
+
             }
         }
         System.out.println("#finished: " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "\n");

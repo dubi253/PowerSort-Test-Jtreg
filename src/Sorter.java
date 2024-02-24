@@ -16,6 +16,11 @@ public interface Sorter {
     <T> void sort(T[] A, int left, int right, Comparator<? super T> comp);
 
     /**
+     * Zero merge cost.
+     */
+    void resetMergeCost();
+
+    /**
      * Gets merge cost.
      *
      * @return the merge cost
@@ -43,7 +48,7 @@ public interface Sorter {
      * @param A   the a
      */
     default <T> void sort(T[] A) {
-        sort(A, 0, A.length, null);
+        sort(A, 0, A.length, PermutationRules.NaturalOrder.INSTANCE);
     }
 
 

@@ -6,8 +6,6 @@ public class PowerSort implements Sorter {
     private final boolean onlyIncreasingRuns;
     private final int myMinRunLen;
 
-    private long mergeCost = 0;
-
     private static int minRunLen = 24;
 
     public PowerSort(final boolean useMsbMergeType, final boolean onlyIncreasingRuns, final int minRunLen) {
@@ -18,13 +16,18 @@ public class PowerSort implements Sorter {
 
     @Override
     public <T > void sort(T[] A, int left, int right, Comparator<? super T> comp) {
-        if (comp == null)  comp = Sorter.NaturalOrder.INSTANCE;
-        mergeCost = java.util.PowerSort.sort(A, left, right, comp, null, 0, 0, useMsbMergeType, onlyIncreasingRuns, minRunLen);
+        java.util.PowerSort.sort(A, left, right, comp, null, 0, 0, useMsbMergeType, onlyIncreasingRuns, minRunLen);
+    }
+
+    @Override
+    public void resetMergeCost() {
+        java.util.PowerSort.COUNT_MERGE_COSTS = true;
+        java.util.PowerSort.totalMergeCosts = 0;
     }
 
     @Override
     public long getMergeCost() {
-        return mergeCost;
+        return java.util.PowerSort.totalMergeCosts;
     }
 
     @Override

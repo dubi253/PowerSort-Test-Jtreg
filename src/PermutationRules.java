@@ -4,8 +4,7 @@ import java.util.Comparator;
 public enum PermutationRules {
     RANDOM_INTEGER("Random_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
-            Random rnd = new Random(randomSeed);
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
             for (int i = 0; i < len; i++)
                 result[i] = rnd.nextInt();
@@ -15,7 +14,7 @@ public enum PermutationRules {
 
     DESCENDING_INTEGER("Descending_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
             for (int i = 0; i < len; i++)
                 result[i] = len - i;
@@ -25,7 +24,7 @@ public enum PermutationRules {
 
     ASCENDING_INTEGER("Ascending_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
             for (int i = 0; i < len; i++)
                 result[i] = i;
@@ -35,9 +34,8 @@ public enum PermutationRules {
 
     ASCENDING_3_RND_EXCH_INTEGER("Ascending_3_Rnd_Exch_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             if (len == 0) return new Integer[0];
-            Random rnd = new Random(randomSeed);
             Integer[] result = new Integer[len];
             for (int i = 0; i < len; i++)
                 result[i] = i;
@@ -51,9 +49,8 @@ public enum PermutationRules {
     ASCENDING_10_RND_AT_END_INTEGER("Ascending_10_Rnd_At_End_Integer") {  // 10 random integers at the end of the array
 
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             if (len == 0) return new Integer[0];
-            Random rnd = new Random(randomSeed);
             Integer[] result = new Integer[len];
             int endStart = len - 10;
             for (int i = 0; i < endStart; i++)
@@ -66,7 +63,7 @@ public enum PermutationRules {
 
     ALL_EQUAL_INTEGER("All_Equal_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
             Arrays.fill(result, 666);
             return result;
@@ -75,8 +72,7 @@ public enum PermutationRules {
 
     DUPS_GALORE_INTEGER("Dups_Galore_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
-            Random rnd = new Random(randomSeed);
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
             for (int i = 0; i < len; i++)
                 result[i] = rnd.nextInt(4);
@@ -86,8 +82,7 @@ public enum PermutationRules {
 
     RANDOM_WITH_DUPS_INTEGER("Random_With_Dups_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
-            Random rnd = new Random(randomSeed);
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
             for (int i = 0; i < len; i++)
                 result[i] = rnd.nextInt(len);
@@ -97,8 +92,7 @@ public enum PermutationRules {
 
     RANDOM_RUNS_INTEGER("Random_Runs_Integer") {
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int expRunLen) {
-            Random rnd = new Random(randomSeed);
+        public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
             for (int i = 0; i < len; i++)
                 result[i] = rnd.nextInt(len);
@@ -117,8 +111,7 @@ public enum PermutationRules {
         private static int RTimCacheN = -1;
 
         @SuppressWarnings("unchecked")
-        public Integer[] buildImpl(int len, long randomSeed, int minRunLen) {
-            Random rnd = new Random(randomSeed);
+        public Integer[] generate(int len, Random rnd, int minRunLen) {
             Integer[] result = new Integer[len];
             int n = len / minRunLen;
             if (RTimCacheN != n || RTimCache == null) {
@@ -132,12 +125,6 @@ public enum PermutationRules {
 
     };
 
-    protected int len;
-
-    protected long randomSeed;
-
-    protected int expRunLen;
-
     private final String name;
 
 
@@ -145,17 +132,10 @@ public enum PermutationRules {
         this.name = name;
     }
 
-    public <T> T[] build(int len, long randomSeed, int expRunLen) {
-        this.len = len;
-        this.randomSeed = randomSeed;
-        this.expRunLen = expRunLen;
-        return buildImpl(len, randomSeed, expRunLen);
-    }
-
-    protected abstract <T> T[] buildImpl(int len, long randomSeed, int expRunLen);
+    protected abstract <T> T[] generate(int len, Random rnd, int expRunLen);
 
     public String toString() {
-        return name + "-Len:" + len + "-Seed:" + String.format("0x%X", randomSeed) + "-ExpRunLen:" + expRunLen;
+        return name;
     }
 
     /**

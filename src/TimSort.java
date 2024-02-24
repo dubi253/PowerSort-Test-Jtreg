@@ -8,7 +8,7 @@ public class TimSort implements Sorter {
     }
 
     @Override
-    public void zeroMergeCost() {
+    public void resetMergeCost() {
         java.util.TimSort.COUNT_MERGE_COSTS = true;
         java.util.TimSort.totalMergeCosts = 0;
     }
