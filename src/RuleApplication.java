@@ -2,7 +2,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 public class RuleApplication<T> {
-    private final Random random;
+    private Random random;
     private final int randomSeed;
     private final int inputLength;
     private final int expectedRunLength;
@@ -43,6 +43,10 @@ public class RuleApplication<T> {
 
     public int getInputLength() {
         return inputLength;
+    }
+
+    public void resetRandom() {
+        random = new Random(randomSeed);
     }
 
     @Override

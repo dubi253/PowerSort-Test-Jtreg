@@ -14,10 +14,10 @@ public class TestInputs {
 
     public Iterable<RuleApplication<?>> getRules() {
         List<RuleApplication<?>> applications = new ArrayList<>();
-        for (Integer seed : randomSeeds) {
+        for (PermutationRules rule : PermutationRules.values()) {
             for (Integer length : inputLengths) {
-                for (int runLength : expectedRunLengths) {
-                    for (PermutationRules rule : PermutationRules.values()) {
+                for (Integer seed : randomSeeds) {
+                    for (int runLength : expectedRunLengths) {
                         applications.add(new RuleApplication<>(seed, length, runLength, rule));
                     }
                 }

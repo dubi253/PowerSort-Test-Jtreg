@@ -2,31 +2,35 @@
  * @test
  * @library .
  * @summary Test PowerSort for correctness, time consumption, and memory usage
- * @build PowerSortTest Sorter
+ * @build PermutationRules PowerSort PowerSortTest RuleApplication Sorter TestInputs TimSort WelfordVariance
  * @run main/timeout=200/othervm -Xmx2048m -XX:+UnlockDiagnosticVMOptions -XX:-TieredCompilation PowerSortTest
  *
  * @author Zhan Jin
  */
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PowerSortTest {
 
-    public static boolean ABORT_IF_RESULT_IS_NOT_SORTED = true;
-    public static final boolean TIME_ALL_RUNS_IN_ONE_MEASUREMENT = false;
+    private final static boolean ABORT_IF_RESULT_IS_NOT_SORTED = true;
+    private final static boolean TIME_ALL_RUNS_IN_ONE_MEASUREMENT = false;
+    private final static boolean COUNT_MERGE_COSTS = true;
+    private final static boolean VERBOSE_IN_REPETITIONS = true;
 
-    public static final boolean COUNT_MERGE_COSTS = true;
 
     public static void main(String[] args) throws IOException {
 
-        final int[] expectedRunLengths = new int[]{24};
+        final int[] expectedRunLengths = new int[]{32};
 
         List<Sorter> algos = new ArrayList<>();
 
         algos.add(new TimSort());
-        algos.add(new PowerSort(true, false, 24));
+        algos.add(new PowerSort(true, false, 32));
 
 
         int reps = 100;
@@ -69,6 +73,8 @@ public class PowerSortTest {
         for (int n : testInputLengths) testName.append("-").append(n);
         testName.append("-Repetition:").append(reps);
 
+        System.out.println("Test name: " + testName);
+
         TestInputs testInputs = new TestInputs(randomSeeds, testInputLengths, expectedRunLengths);
 
         timeSorts(algos, reps, testInputs);
@@ -76,23 +82,31 @@ public class PowerSortTest {
 
     @SuppressWarnings("unchecked")
     public static <T> void timeSorts(final List<Sorter> algos, final int repetition, TestInputs testInputs) {
-        warmup(algos, 1000);  // warmup the JVM to avoid timing noise, 12_000 rounds for each algorithm
+        warmup(algos, 10000);  // warmup the JVM to avoid timing noise, 12_000 rounds for each algorithm
 
 
         System.out.println("Runs with individual timing (skips first run):\n");
 
-        if (COUNT_MERGE_COSTS) {
-            System.out.println("algo,testInput,ms,n,merge-cost");
-        } else {
-            System.out.println("algo,ms,n");
-        }
+        for (RuleApplication<?> testInput : testInputs.getRules()) {
+            System.out.println("==========" + testInput + "==========");
 
-        for (final Sorter algo : algos) {
-            for (RuleApplication<?> testInput : testInputs.getRules()) {
+            for (final Sorter algo : algos) {
+
+                testInput.resetRandom();  // reset the random seed for each algorithm
+
                 final WelfordVariance samples = new WelfordVariance();
+                if (VERBOSE_IN_REPETITIONS) {
+                    System.out.println("----------" + algo + "----------");
+                    if (COUNT_MERGE_COSTS) {
+                        System.out.println("n\t ms\t \t merge-cost");
+                    } else {
+                        System.out.println("n\t ms");
+                    }
+                }
                 for (int r = 0; r < repetition; ++r) {
                     if (COUNT_MERGE_COSTS) algo.resetMergeCost();
                     T[] a = (T[]) testInput.generate();
+
                     Comparator<? super T> comp = (Comparator<? super T>) testInput.getComparator();
                     final long startNanos = System.nanoTime();
                     algo.sort(a, comp);
@@ -105,17 +119,21 @@ public class PowerSortTest {
                     if (r != 0) {
                         // Skip first iteration, often slower!
                         samples.addSample(msDiff);
-                        if (COUNT_MERGE_COSTS)
-                            System.out.println(algo + "," + testInput + "," + msDiff + "," + r + "," + algo.getMergeCost());
-                        else
-                            System.out.println(algo + "," + testInput + "," + msDiff + "," + r);
+                        if (VERBOSE_IN_REPETITIONS) {
+                            if (COUNT_MERGE_COSTS)
+                                System.out.println(r + "\t " + msDiff + "\t " + algo.getMergeCost());
+                            else
+                                System.out.println(r + "\t " + msDiff);
+                        }
                     }
-                }
-                System.out.println("avg-ms=" + (float) (samples.mean()) + ",\t algo=" + algo + ", testInputLength=" + testInput.getInputLength() + ", repetition:" + repetition + "\t" + samples);
 
+                }
+
+                System.out.println("avg-ms=" + (float) (samples.mean()) + ",\talgo=" + algo + ",\ttestInput=" + testInput + ",\trepetition:" + repetition + "\t" + samples);
 
             }
         }
+
         System.out.println("#finished: " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "\n");
 
 //        if (TIME_ALL_RUNS_IN_ONE_MEASUREMENT) {
@@ -156,5 +174,16 @@ public class PowerSortTest {
             }
         }
         System.out.println("  end warm up");
+    }
+
+    public static void writeArrayToCSV(Object[] a, String fileName) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        for (Object o : a) {
+            sb.append(o.toString());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("\n");
+        Files.write(Paths.get(fileName), sb.toString().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
 }

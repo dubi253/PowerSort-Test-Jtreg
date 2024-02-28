@@ -16,8 +16,9 @@ public enum PermutationRules {
         @SuppressWarnings("unchecked")
         public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
-            for (int i = 0; i < len; i++)
-                result[i] = len - i;
+            result[0] = rnd.nextInt();
+            for (int i = 1; i < len; i++)
+                result[i] = result[i - 1] - 1;
             return result;
         }
     },
@@ -26,8 +27,9 @@ public enum PermutationRules {
         @SuppressWarnings("unchecked")
         public Integer[] generate(int len, Random rnd, int expRunLen) {
             Integer[] result = new Integer[len];
-            for (int i = 0; i < len; i++)
-                result[i] = i;
+            result[0] = rnd.nextInt();
+            for (int i = 1; i < len; i++)
+                result[i] = result[i - 1] + 1;
             return result;
         }
     },
@@ -123,6 +125,16 @@ public enum PermutationRules {
             return result;
         }
 
+    },
+
+    RANDOM_FLOAT("Random_Float") {
+        @SuppressWarnings("unchecked")
+        public Float[] generate(int len, Random rnd, int expRunLen) {
+            Float[] result = new Float[len];
+            for (int i = 0; i < len; i++)
+                result[i] = rnd.nextFloat();
+            return result;
+        }
     };
 
     private final String name;

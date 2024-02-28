@@ -32,7 +32,7 @@ public class PowerSort implements Sorter {
 
     @Override
     public String toString() {
-        return "PowerSort";
+        return "PowerSort" + (useMsbMergeType ? "-msb" : "") + (onlyIncreasingRuns ? "-inc" : "") + "-minRunLen-" + myMinRunLen;
     }
 
 }
