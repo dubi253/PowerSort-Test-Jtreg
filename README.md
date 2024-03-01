@@ -1,3 +1,9 @@
+# Jtreg Test for PowerSort
+
+## Deprecated
+
+Already integrated into my openjdk fork repository at https://github.com/dubi253/openjdk/tree/powersort/test/jdk/java/util/PowerSort
+
 
 ```bash
 ~/Documents/COMP390/openjdk/build/linux-x86_64-server-release/jdk/bin/javac -d ./out/production/PowerSort-Test-Jtreg -cp ./src/ -Xlint:unchecked ./src/PowerSortTest.java
