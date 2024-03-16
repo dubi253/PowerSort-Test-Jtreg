@@ -31,6 +31,7 @@ public class PowerSortTest {
 
         algos.add(new TimSort());
         algos.add(new PowerSort(true, false, 32));
+        algos.add(new ArrayParallelSort(true, false, 32));
 
 
         int reps = 100;
