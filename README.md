@@ -21,3 +21,25 @@ Jtreg
 ```bash
 jtreg -verbose:all -jdk:../openjdk/build/linux-x86_64-server-release/jdk/ ./src/PowerSortTest.java 
 ```
+
+## Flame Graphs Visualisation
+
+Install AsyncProfiler at https://github.com/async-profiler/async-profiler
+
+Enable perf_event_paranoid and disable kptr_restrict for async-profiler to work
+
+```bash
+sudo sysctl kernel.perf_event_paranoid=1 && sudo sysctl kernel.kptr_restrict=0
+```
+
+List all Java processes
+
+```bash
+jps -l
+```
+
+Run AsyncProfiler and generate flame graph
+
+```bash
+./asprof -d 400s -f ./tmp.html [PID]
+```
