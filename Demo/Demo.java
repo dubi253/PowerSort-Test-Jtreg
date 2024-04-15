@@ -9,7 +9,7 @@ public class Demo {
 
         // Generate 10 million random objects
         for (int i = 0; i < objects.length; i++) {
-            int value = random.nextInt(100000); // Limit to within 100000 to increase the occurrence of duplicate values, useful for testing stability
+            int value = random.nextInt(1_000_000); // Limit to within 10_000_000 to increase the occurrence of duplicate values
             String identifier = "ID" + i; // Create a unique identifier for each object
             objects[i] = new TestObject(value, identifier);
         }
@@ -25,7 +25,7 @@ public class Demo {
 
         // Print the time taken
         final float msDiff = (endNanos - startNanos) / 1e6f;
-        System.out.println("Length: "+ objects.length +". Time taken: " + msDiff + "ms. JDK Version: " + System.getProperty("java.version"));
+        System.out.println("Length: " + objects.length + ". Time taken: " + msDiff + "ms. JDK Version: " + System.getProperty("java.version"));
 
         // Print part of the objects' information after sorting
 //        System.out.println("After sorting:");
