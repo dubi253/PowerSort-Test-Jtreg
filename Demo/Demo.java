@@ -9,7 +9,7 @@ public class Demo {
 
         // Generate 10 million random objects
         for (int i = 0; i < objects.length; i++) {
-            int value = random.nextInt(1_000_000); // Limit to within 10_000_000 to increase the occurrence of duplicate values
+            int value = random.nextInt(10_000_000); // Limit to within 10_000_000 to increase the occurrence of duplicate values
             String identifier = "ID" + i; // Create a unique identifier for each object
             objects[i] = new TestObject(value, identifier);
         }
